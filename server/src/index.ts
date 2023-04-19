@@ -1,11 +1,13 @@
 import express, { Express } from 'express';
-import http, { Server } from 'http';
+import http, { Server, IncomingMessage } from 'http';
 import ws, { Server as WebSocketServer, WebSocket } from 'ws';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
 
 const app: Express = express();
+
+app.use(express.json());
 
 // Http Server
 const server: Server = http.createServer(app);
@@ -14,7 +16,9 @@ const server: Server = http.createServer(app);
 const wsServer: WebSocketServer = new ws.Server({ server });
 
 import { onConnection } from './controllers/webSocketController';
-wsServer.on('connection', (ws: WebSocket) => onConnection(wsServer, ws));
+wsServer.on('connection', (ws: WebSocket, req: IncomingMessage) =>
+  onConnection(wsServer, ws, req)
+);
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {

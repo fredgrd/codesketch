@@ -1,0 +1,14 @@
+.canvas {
+  height: calc(100% - 120px);
+  width: 100%;
+  margin-top: 60px;
+  margin-left: 300px;
+  margin-right: 250px;
+}
+
+.canvas__drawing-canvas {
+  height: 100%;
+  width: 100%;
+
+  background-color: white;
+}
