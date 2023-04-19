@@ -1,4 +1,5 @@
 import { WebSocket, Server, RawData } from 'ws';
+import { randomUUID } from 'crypto';
 import { IncomingMessage } from 'http';
 import { parse } from 'url';
 import {
@@ -18,7 +19,7 @@ export const onConnection = (
 ) => {
   console.log('SOMETHING CONNECTED');
 
-  // Check if user model is ok
+  // [ START Game ]
   const user = parse(req.url || '', true).query as unknown as User;
 
   if (!user || !user.id || !user.name) {
@@ -28,23 +29,96 @@ export const onConnection = (
   }
 
   // Find an available game
-  const game = GAMES.find((e) => e.users.length < 5);
+  let game: GameContext | undefined = GAMES.find((e) => e.users.length < 5);
   if (game) {
-    game.users.push({ user, score: 0 });
+    game.users.push({ user, score: 0, hasGuessed: false });
   } else {
-    const newGame: GameContext = {
+    game = {
+      id: randomUUID(),
       state: GameState.WAITING_FOR_PLAYERS,
       round: 0,
       selectedUser: null,
-      users: [{ user, score: 0 }],
+      word: null,
+      users: [{ user, score: 0, hasGuessed: false }],
       messages: [],
     };
-    GAMES.push(newGame);
+    GAMES.push(game);
   }
+  // [ END Game ]
 
+  // Listeners
   ws.on('message', (data: RawData) => onMessage(wss, ws, data));
 
-  // Update game context
+  // [ START Update Game ]
+  console.log('GAME', game);
+  if (game?.users.length === 1) {
+    // Should start game
+    startGame(wss, game.id);
+  }
+};
+
+const startGame = (wss: Server, id: string) => {
+  const gameContext: GameContext | undefined = GAMES.find((e) => e.id === id);
+  if (!gameContext) return;
+
+  gameContext.state = GameState.GAME_STARTED;
+
+  wss.clients.forEach((ws) => {
+    if (ws.readyState === WebSocket.OPEN) {
+      const update: string = JSON.stringify(gameContext);
+      ws.send(update);
+    }
+  });
+
+  startRound(wss, id);
+};
+
+const startRound = (wss: Server, id: string) => {
+  const gameContext: GameContext | undefined = GAMES.find((e) => e.id === id);
+  if (!gameContext) return;
+
+  gameContext.state = GameState.ROUND_STARTED;
+  gameContext.round += 1;
+  gameContext.selectedUser = gameContext.users[0].user.id;
+  gameContext.word = 'Linked List';
+
+  wss.clients.forEach((ws) => {
+    if (ws.readyState === WebSocket.OPEN) {
+      const update: string = JSON.stringify(gameContext);
+      ws.send(update);
+    }
+  });
+
+  setTimeout(() => endRound(wss, id), 5000);
+};
+
+const endRound = (wss: Server, id: string) => {
+  const gameContext: GameContext | undefined = GAMES.find((e) => e.id === id);
+  if (!gameContext) return;
+
+  gameContext.state = GameState.ROUND_ENDED;
+  gameContext.users = gameContext.users.map((user) => ({
+    ...user,
+    hasGuessed: false,
+  }));
+
+  // Points
+
+  wss.clients.forEach((ws) => {
+    if (ws.readyState === WebSocket.OPEN) {
+      const update: string = JSON.stringify(gameContext);
+      ws.send(update);
+    }
+  });
+
+  setTimeout(() => {
+    console.log('NEW ROUND OR END GAME');
+    if (gameContext.round < 6) {
+      startRound(wss, id);
+    } else {
+      console.log('END GAME');
+    }
+  }, 2000);
 };
 
 export const onMessage = (wss: Server, ws: WebSocket, data: RawData) => {
@@ -66,6 +140,22 @@ export const onMessage = (wss: Server, ws: WebSocket, data: RawData) => {
       console.log('DRAW ON', drawPayload);
       // TODO: Check if payload is valid
       break;
+    case 'TEXT':
+      const textPayload = dataParsed.payload as unknown as string;
+      const game = GAMES[0];
+
+      if (game.state === GameState.ROUND_STARTED) {
+        game.users[0].score += 250;
+        game.users[0].hasGuessed = true;
+      }
+    case 'GUESS':
+      const textPayload = dataParsed.payload as unknown as string;
+      const game = GAMES[0];
+
+      if (game.state === GameState.ROUND_STARTED) {
+        game.users[0].score += 250;
+        game.users[0].hasGuessed = true;
+      }
     default:
       console.log('default');
   }
