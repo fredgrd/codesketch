@@ -1,30 +1,39 @@
 import { useEffect, useState } from 'react';
+import { User } from '../user/user';
 
 export enum WebSocketStatus {
   OPEN,
   CLOSED,
 }
 
-const useWebSocket = (url: string) => {
+const useWebSocket = () => {
   const [webSocket, setWebSocket] = useState<WebSocket>();
   const [webSocketStatus, setWebSocketStatus] = useState<WebSocketStatus>(
     WebSocketStatus.CLOSED
   );
 
   useEffect(() => {
-    const webSocket = new WebSocket(url);
+    return () => {
+      webSocket?.removeEventListener('close', updateOnClose);
+      webSocket?.removeEventListener('open', updateOnOpen);
+    };
+  }, []);
 
-    webSocket.addEventListener('close', () =>
-      setWebSocketStatus(WebSocketStatus.CLOSED)
+  const updateOnOpen = () => setWebSocketStatus(WebSocketStatus.OPEN);
+  const updateOnClose = () => setWebSocketStatus(WebSocketStatus.CLOSED);
+
+  const connect = (user: User) => {
+    const webSocket = new WebSocket(
+      `ws://localhost:3001/?id=${user.id}&name=${user.name}`
     );
-    webSocket.addEventListener('open', () =>
-      setWebSocketStatus(WebSocketStatus.OPEN)
-    );
+
+    webSocket.addEventListener('close', updateOnClose);
+    webSocket.addEventListener('open', updateOnClose);
 
     setWebSocket(webSocket);
-  }, [url]);
+  };
 
-  return [webSocket, webSocketStatus] as const;
+  return [webSocket, webSocketStatus, connect] as const;
 };
 
 export default useWebSocket;

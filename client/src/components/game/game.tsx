@@ -1,25 +1,59 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import useWebSocket from '../../web-socket/use-web-socket';
-import { WebSocketContext } from '../../web-socket/ws-context';
+import { WebSocketContext } from '../../web-socket/web-socket-context';
 import './game.css';
-import Canvas from '../canvas/drawer-canvas';
 import DrawerCanvas from '../canvas/drawer-canvas';
+import SpectatorCanvas from '../canvas/spectator-canvas';
+import { GameContext } from '../../game-context/game-context-provider';
+import {
+  GameContext as Context,
+  GameUpdate,
+  GameUpdateType,
+} from '../../game-context/game-context';
+import { UserContext } from '../../user/user-context';
 
 const Game: React.FC = () => {
-  const [ws, status] = useWebSocket(
-    `ws://localhost:3001/?id=hh9ih98u2142n1ijni9&name=Federico`
-  );
+  const user = useContext(UserContext);
+  const [ws, status, connect] = useWebSocket();
+  const [context, setContext] = useState<Context>();
   const [isDrawer, setIsDrawer] = useState<boolean>(true);
 
   useEffect(() => {
-    ws?.addEventListener('message', (ev: MessageEvent) => {
-      console.log(ev.data);
-    });
+    if (user) {
+      connect(user);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    ws?.addEventListener('message', handleGameUpdate);
+
+    return () => {
+      ws?.close();
+      ws?.removeEventListener('message', handleGameUpdate);
+    };
   }, [ws]);
+
+  const handleGameUpdate = (ev: MessageEvent) => {
+    const data = JSON.parse(ev.data) as GameUpdate;
+    console.log(data);
+
+    if (data && data.type === GameUpdateType.CONTEXT) {
+      const context = data.context as Context;
+      setContext(context);
+    }
+  };
 
   return (
     <WebSocketContext.Provider value={{ ws, status }}>
-      <div className="game">{isDrawer ? <DrawerCanvas /> : null}</div>
+      <GameContext.Provider value={context}>
+        <div className="game">
+          {context?.selectedUser === user?.id ? (
+            <DrawerCanvas />
+          ) : (
+            <SpectatorCanvas />
+          )}
+        </div>
+      </GameContext.Provider>
     </WebSocketContext.Provider>
   );
 };

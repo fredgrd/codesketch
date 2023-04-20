@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { WebSocketContext } from '../../web-socket/ws-context';
+import { WebSocketContext } from '../../web-socket/web-socket-context';
 import { WebSocketStatus } from '../../web-socket/use-web-socket';
 
 import './canvas.css';
@@ -22,7 +22,7 @@ const DrawerCanvas: React.FC = () => {
 
   useEffect(() => {
     if (context?.ws) {
-      context.ws.addEventListener('message', () => {});
+      // context.ws.addEventListener('message', () => {});
     }
   }, [context]);
 
