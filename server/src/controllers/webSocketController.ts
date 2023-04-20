@@ -1,12 +1,7 @@
 import { WebSocket, Server, RawData } from 'ws';
-import { randomUUID } from 'crypto';
 import { IncomingMessage } from 'http';
 import { parse } from 'url';
-import {
-  WebSocketMessage,
-  WSDrawPayload,
-  WSMovePayload,
-} from '../models/web-socket-message';
+import { WebSocketMessage } from '../models/web-socket-message';
 import {
   GameContext,
   GameState,
@@ -17,6 +12,7 @@ import {
 } from '../models/game-context';
 import { User } from '../models/user';
 import { GameWebSocket } from '../models/game-web-socket';
+import { GameUpdateType, sendUpdate } from '../models/game-update';
 
 const GAMES: GameContext[] = [];
 const GAME_MAX_USERS: number = 5;
@@ -60,7 +56,7 @@ export const onConnection = (
       client.readyState === WebSocket.OPEN &&
       (client as GameWebSocket).gameId === game!.id
     ) {
-      client.send(JSON.stringify(game));
+      client.send(sendUpdate(GameUpdateType.CONTEXT, game));
     }
   });
 
@@ -68,6 +64,7 @@ export const onConnection = (
 
   // Listeners
   ws.on('message', (data: RawData) => onMessage(wss, ws, data));
+  ws.on('close', () => onClose(wss, ws, game!.id));
 
   // [ START Update Game ]
   console.log('GAME', game);
@@ -77,21 +74,40 @@ export const onConnection = (
   }
 };
 
-const startGame = (wss: Server, gameId: string) => {
-  const gameContext: GameContext | undefined = GAMES.find(
-    (e) => e.id === gameId
+const onClose = (wss: Server, ws: GameWebSocket, gameId: string) => {
+  const context: GameContext | undefined = GAMES.find(
+    (game) => game.id === gameId
   );
-  if (!gameContext) return;
+  if (!context) return;
 
-  gameContext.gameState = GameState.GAME_STARTED;
+  // Update state
+  context.users = context.users.filter((user) => user.user.id !== ws.user?.id);
 
-  wss.clients.forEach((ws) => {
+  // Broadcast updated context
+  wss.clients.forEach((client) => {
     if (
-      ws.readyState === WebSocket.OPEN &&
-      (ws as GameWebSocket).gameId === gameId
+      client.readyState === WebSocket.OPEN &&
+      (client as GameWebSocket).gameId === context!.id
     ) {
-      const update: string = JSON.stringify(gameContext);
-      ws.send(update);
+      client.send(sendUpdate(GameUpdateType.CONTEXT, context));
+    }
+  });
+
+  console.log('PLAYER REMOVED');
+};
+
+const startGame = (wss: Server, gameId: string) => {
+  const context: GameContext | undefined = GAMES.find((e) => e.id === gameId);
+  if (!context) return;
+
+  context.gameState = GameState.GAME_STARTED;
+
+  wss.clients.forEach((client) => {
+    if (
+      client.readyState === WebSocket.OPEN &&
+      (client as GameWebSocket).gameId === gameId
+    ) {
+      client.send(sendUpdate(GameUpdateType.CONTEXT, context));
     }
   });
 
@@ -114,13 +130,12 @@ const startRound = (wss: Server, gameId: string) => {
   context.selectedUserIndex = index;
   context.word = selectWord();
 
-  wss.clients.forEach((ws) => {
+  wss.clients.forEach((client) => {
     if (
-      ws.readyState === WebSocket.OPEN &&
-      (ws as GameWebSocket).gameId === gameId
+      client.readyState === WebSocket.OPEN &&
+      (client as GameWebSocket).gameId === gameId
     ) {
-      const update: string = JSON.stringify(context);
-      ws.send(update);
+      client.send(sendUpdate(GameUpdateType.CONTEXT, context));
     }
   });
 
@@ -128,31 +143,29 @@ const startRound = (wss: Server, gameId: string) => {
 };
 
 const endRound = (wss: Server, gameId: string) => {
-  const gameContext: GameContext | undefined = GAMES.find(
-    (e) => e.id === gameId
-  );
-  if (!gameContext) return;
+  const context: GameContext | undefined = GAMES.find((e) => e.id === gameId);
+  if (!context) return;
 
-  gameContext.roundState = RoundState.ROUND_ENDED;
-  gameContext.users = gameContext.users.map((user) => ({
+  context.roundState = RoundState.ROUND_ENDED;
+  context.users = context.users.map((user) => ({
     ...user,
     hasGuessed: false,
   }));
 
   // Points
 
-  wss.clients.forEach((ws) => {
+  wss.clients.forEach((client) => {
     if (
-      ws.readyState === WebSocket.OPEN &&
-      (ws as GameWebSocket).gameId === gameId
+      client.readyState === WebSocket.OPEN &&
+      (client as GameWebSocket).gameId === gameId
     ) {
-      ws.send(JSON.stringify(gameContext));
+      client.send(sendUpdate(GameUpdateType.CONTEXT, context));
     }
   });
 
   setTimeout(() => {
     console.log('NEW ROUND OR END GAME');
-    if (gameContext.round < GAME_MAX_ROUNDS) {
+    if (context.round < GAME_MAX_ROUNDS) {
       startRound(wss, gameId);
     } else {
       console.log('END GAME');
