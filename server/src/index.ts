@@ -16,8 +16,9 @@ const server: Server = http.createServer(app);
 const wsServer: WebSocketServer = new ws.Server({ server });
 
 import { onConnection } from './controllers/webSocketController';
+import { GameWebSocket } from './models/game-web-socket';
 wsServer.on('connection', (ws: WebSocket, req: IncomingMessage) =>
-  onConnection(wsServer, ws, req)
+  onConnection(wsServer, ws as GameWebSocket, req)
 );
 
 const PORT = process.env.PORT || 3001;
