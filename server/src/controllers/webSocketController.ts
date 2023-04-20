@@ -203,7 +203,7 @@ export const onMessage = (wss: Server, ws: GameWebSocket, data: RawData) => {
           (client as GameWebSocket).gameId === game.id &&
           (client as GameWebSocket).user?.id !== (ws as GameWebSocket).user?.id
         ) {
-          client.send(JSON.stringify(message));
+          client.send(sendUpdate(GameUpdateType.MESSAGE, message));
         }
       });
 
@@ -221,7 +221,7 @@ export const onMessage = (wss: Server, ws: GameWebSocket, data: RawData) => {
           (client as GameWebSocket).gameId === game.id &&
           (client as GameWebSocket).user?.id !== (ws as GameWebSocket).user?.id
         ) {
-          client.send(JSON.stringify(message));
+          client.send(sendUpdate(GameUpdateType.MESSAGE, message));
         }
       });
 
