@@ -46,6 +46,11 @@ const Game: React.FC = () => {
   return (
     <WebSocketContext.Provider value={{ ws, status }}>
       <GameContext.Provider value={context}>
+        {context?.selectedUser === user?.id ? (
+          <div>DRAW</div>
+        ) : (
+          <div>SPECTATE</div>
+        )}
         <div className="game">
           {context?.selectedUser === user?.id ? (
             <DrawerCanvas />
