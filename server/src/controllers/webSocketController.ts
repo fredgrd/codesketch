@@ -23,11 +23,12 @@ export const onConnection = (
   ws: GameWebSocket,
   req: IncomingMessage
 ) => {
-  console.log('SOMEONE CONNECTED');
-
   // [ START Game ]
   // Make sure this is secure enough, so that cannot imitate
   const user = parse(req.url || '', true).query as unknown as User;
+
+  console.log('USER CONNECTED');
+  console.log(`ID: ${user.id}\nNAME: ${user.name}`);
 
   if (!user || !user.id || !user.name) {
     ws.close();
