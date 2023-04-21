@@ -33,3 +33,32 @@
   font-size: 13px;
   color: black;
 }
+
+.chat-cell__guess {
+  width: 100%;
+}
+
+.chat-cell__guess__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.chat-cell__guess__header__title {
+  font-weight: 600;
+  font-size: 12px;
+  color: #4e4e4e;
+}
+
+.chat-cell__guess__header__timestamp {
+  font-weight: 600;
+  font-size: 9px;
+  color: #4e4e4e;
+}
+
+.chat-cell__guess__content {
+  margin-top: 5px;
+  font-weight: 800;
+  font-size: 13px;
+  color: rgb(0, 194, 0);
+}
