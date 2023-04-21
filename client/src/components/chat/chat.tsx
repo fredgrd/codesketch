@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import './chat.css';
 
 import Window from '../window/window';
@@ -11,6 +11,8 @@ import {
   ChatMessageType,
   GameMessage,
   GameMessageTextPayload,
+  GameState,
+  RoundState,
 } from '../../game-context/game-context';
 
 const Chat: React.FC = () => {
@@ -18,6 +20,11 @@ const Chat: React.FC = () => {
   const gameContext = useContext(GameContext);
   const user = useContext(UserContext);
   const [input, setInput] = useState<string>('');
+  const messageEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [gameContext]);
 
   const handleInput = () => {
     if (!input.length || !user || !gameContext) return;
@@ -26,10 +33,13 @@ const Chat: React.FC = () => {
       (e) => e.user.id === user?.id
     );
 
-    if (userFromContext && userFromContext.hasGuessed) {
+    if (
+      (userFromContext && userFromContext.hasGuessed) ||
+      gameContext.roundState !== RoundState.ROUND_STARTED
+    ) {
       const payload: GameMessageTextPayload = {
         content: input,
-        timestamp: Date.now.toString(),
+        timestamp: Date.now().toString(),
       };
 
       webSocket?.ws?.send(
@@ -40,14 +50,18 @@ const Chat: React.FC = () => {
       );
     }
 
-    if (userFromContext && !userFromContext.hasGuessed) {
+    if (
+      userFromContext &&
+      !userFromContext.hasGuessed &&
+      gameContext.roundState === RoundState.ROUND_STARTED
+    ) {
       // Validate the guess
       if (gameContext.word.toLowerCase() === input.toLowerCase()) {
         console.log('GUESSED');
       } else {
         const payload: GameMessageTextPayload = {
           content: input,
-          timestamp: Date.now.toString(),
+          timestamp: Date.now().toString(),
         };
 
         webSocket?.ws?.send(
@@ -58,6 +72,8 @@ const Chat: React.FC = () => {
         );
       }
     }
+
+    setInput('');
   };
 
   return (
@@ -67,6 +83,7 @@ const Chat: React.FC = () => {
           {gameContext?.messages.map((message, key) => (
             <ChatCell message={message} key={key} />
           ))}
+          <div ref={messageEndRef}></div>
         </div>
         <div className="chat__input-container">
           <input
@@ -75,6 +92,9 @@ const Chat: React.FC = () => {
             placeholder="Input your guess.."
             value={input}
             onChange={(ev) => setInput(ev.target.value)}
+            onKeyDown={(ev) => {
+              if (ev.key === 'Enter') handleInput();
+            }}
           />
           <button className="chat__input__button" onClick={handleInput}>
             SEND

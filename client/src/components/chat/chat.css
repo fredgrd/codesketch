@@ -10,6 +10,8 @@
   height: 575px;
   width: 100%;
 
+  overflow-y: scroll;
+
   border: 2px solid;
   border-color: var(--color-border-dark) var(--color-border-light)
     var(--color-border-light) var(--color-border-dark);
