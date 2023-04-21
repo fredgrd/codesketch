@@ -11,7 +11,7 @@ export interface GameContext {
   selectedUserIndex: number | null;
   word: string;
   users: { user: User; score: number; hasGuessed: boolean }[];
-  messages: GameMessage[];
+  messages: ChatMessage[];
 }
 
 export enum GameState {
@@ -26,17 +26,16 @@ export enum RoundState {
   ROUND_ENDED = 'ROUND_ENDED',
 }
 
-export interface GameMessage {
+export interface ChatMessage {
+  type: ChatMessageType;
+  content: string;
   senderName: string;
   timestamp: string;
-  highlight: boolean;
-  highlightColor: string;
-  text: string;
 }
 
-export interface GameUpdate {
-  type: GameState;
-  user_selected: string | undefined;
+export enum ChatMessageType {
+  TEXT = 'TEXT',
+  GUESS = 'GUESS',
 }
 
 /**

@@ -3,7 +3,12 @@ export interface WebSocketMessage {
   payload: WebSocketMessagePayload;
 }
 
-type WebSocketMessagePayload = WSMovePayload | WSDrawPayload | undefined;
+type WebSocketMessagePayload =
+  | WSMovePayload
+  | WSDrawPayload
+  | WSTextPayload
+  | WSGuessPayload
+  | undefined;
 
 export interface WSMovePayload {
   x: number;
@@ -19,4 +24,13 @@ export interface WSDrawPayload {
     x: number;
     y: number;
   };
+}
+
+export interface WSTextPayload {
+  content: string;
+  timestamp: string;
+}
+
+export interface WSGuessPayload {
+  timestamp: string;
 }
