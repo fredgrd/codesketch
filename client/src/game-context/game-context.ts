@@ -20,7 +20,7 @@ export interface GameContext {
   selectedUserIndex: number | null;
   word: string;
   users: { user: User; score: number; hasGuessed: boolean }[];
-  messages: string[];
+  messages: ChatMessage[];
 }
 
 export enum GameState {
@@ -43,9 +43,15 @@ export interface GameMessage {
 export enum GameMessageAction {
   MOVE = 'MOVE',
   DRAW = 'DRAW',
+  TEXT = 'TEXT',
+  GUESS = 'GUESS',
 }
 
-type GameMessagePayload = GameMessageMovePayload | GameMessageDrawPayload;
+type GameMessagePayload =
+  | GameMessageMovePayload
+  | GameMessageDrawPayload
+  | GameMessageTextPayload
+  | GameMessageGuessPayload;
 
 export interface GameMessageMovePayload {
   x: number;
@@ -61,4 +67,25 @@ export interface GameMessageDrawPayload {
     x: number;
     y: number;
   };
+}
+
+export interface GameMessageTextPayload {
+  content: string;
+  timestamp: string;
+}
+
+export interface GameMessageGuessPayload {
+  timestamp: string;
+}
+
+export interface ChatMessage {
+  type: ChatMessageType;
+  content: string;
+  senderName: string;
+  timestamp: string;
+}
+
+export enum ChatMessageType {
+  TEXT = 'TEXT',
+  GUESS = 'GUESS',
 }

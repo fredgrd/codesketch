@@ -1,0 +1,12 @@
+.window {
+  height: 100%;
+  width: 100%;
+  padding: 0px 10px;
+
+  border: 2.5px solid black;
+  border-radius: 2px;
+  background-color: var(--color-grey);
+
+  -webkit-box-shadow: 6px 6px 0px 0px #000000;
+  box-shadow: 6px 6px 0px 0px #000000;
+}

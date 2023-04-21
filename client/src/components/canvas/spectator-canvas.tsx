@@ -38,6 +38,7 @@ const SpectatorCanvas: React.FC = () => {
         case GameMessageAction.DRAW: {
           const payload = data.message.payload as GameMessageDrawPayload;
           draw(payload.start, payload.end, 'black', 5);
+          moveCursor(payload.end);
           break;
         }
       }

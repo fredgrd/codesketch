@@ -11,12 +11,14 @@ import {
   GameUpdateType,
 } from '../../game-context/game-context';
 import { UserContext } from '../../user/user-context';
+import Chat from '../chat/chat';
 
 const Game: React.FC = () => {
   const user = useContext(UserContext);
   const [ws, status, connect] = useWebSocket();
   const [context, setContext] = useState<Context>();
-  const [isDrawer, setIsDrawer] = useState<boolean>(true);
+
+  // Timer to check WS Connection
 
   useEffect(() => {
     if (user) {
@@ -25,6 +27,7 @@ const Game: React.FC = () => {
   }, [user]);
 
   useEffect(() => {
+    console.log('WEBSOCKET', ws);
     ws?.addEventListener('message', handleGameUpdate);
 
     return () => {
@@ -46,17 +49,16 @@ const Game: React.FC = () => {
   return (
     <WebSocketContext.Provider value={{ ws, status }}>
       <GameContext.Provider value={context}>
-        {context?.selectedUser === user?.id ? (
-          <div>DRAW</div>
-        ) : (
-          <div>SPECTATE</div>
-        )}
         <div className="game">
-          {context?.selectedUser === user?.id ? (
-            <DrawerCanvas />
-          ) : (
-            <SpectatorCanvas />
-          )}
+          <div className="game__components">
+            {' '}
+            {context?.selectedUser === user?.id ? (
+              <DrawerCanvas />
+            ) : (
+              <SpectatorCanvas />
+            )}
+            <Chat />
+          </div>
         </div>
       </GameContext.Provider>
     </WebSocketContext.Provider>

@@ -1,6 +1,13 @@
 :root {
   --color-background-green: #49ecc5;
   --color-blue: hsl(270deg 75% 60%);
+  --color-grey: #dfe2e6;
+  --color-border-dark: #b4b6b9;
+  --color-border-light: #dddddd;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {

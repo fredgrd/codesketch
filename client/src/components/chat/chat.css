@@ -1,0 +1,63 @@
+.chat {
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  height: 700px;
+  width: 320px;
+}
+
+.chat__content {
+  height: 575px;
+  width: 100%;
+
+  border: 2px solid;
+  border-color: var(--color-border-dark) var(--color-border-light)
+    var(--color-border-light) var(--color-border-dark);
+  background-color: var(--color-grey);
+}
+
+.chat__input-container {
+  height: 50px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.chat__input {
+  height: 40px;
+  width: 100%;
+  margin-right: 10px;
+  padding: 0px 10px;
+
+  border: 2px solid;
+  border-color: var(--color-border-dark) var(--color-border-light)
+    var(--color-border-light) var(--color-border-dark);
+  background-color: var(--color-grey);
+
+  font-family: IBM Plex Mono;
+  font-weight: 600;
+  font-size: 12px;
+
+  outline: none;
+}
+
+.chat__input__button {
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+
+  border: 3px solid;
+  border-color: white var(--color-border-dark) var(--color-border-dark) white;
+  background-color: var(--color-grey);
+
+  font-family: IBM Plex Mono;
+  font-weight: 600;
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.chat__input__button:hover {
+  background-color: #d6d6d6;
+}
