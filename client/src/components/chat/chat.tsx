@@ -10,6 +10,7 @@ import {
   ChatMessage,
   ChatMessageType,
   GameMessage,
+  GameMessageGuessPayload,
   GameMessageTextPayload,
   GameState,
   RoundState,
@@ -57,7 +58,18 @@ const Chat: React.FC = () => {
     ) {
       // Validate the guess
       if (gameContext.word.toLowerCase() === input.toLowerCase()) {
-        console.log('GUESSED');
+        const payload: GameMessageGuessPayload = {
+          timestamp: Date.now().toString(),
+        };
+
+        console.log("GUESSING")
+
+        webSocket?.ws?.send(
+          JSON.stringify({
+            action: 'GUESS',
+            payload,
+          })
+        );
       } else {
         const payload: GameMessageTextPayload = {
           content: input,
