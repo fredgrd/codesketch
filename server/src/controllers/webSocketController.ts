@@ -19,6 +19,9 @@ import { GameUpdateType, sendUpdate } from '../models/game-update';
 let GAMES: GameContext[] = [];
 const GAME_MAX_USERS: number = 5;
 const GAME_MAX_ROUNDS: number = 6;
+const GAME_INBETWEEN_DELAY: number = 60;
+const ROUND_DURATION: number = 60;
+const ROUND_INBETWEEN_DELAY: number = 30;
 
 export const onConnection = (
   wss: Server,
@@ -162,7 +165,7 @@ const startRound = (wss: Server, gameId: string) => {
     }
   });
 
-  setTimeout(() => endRound(wss, gameId), 45000);
+  setTimeout(() => endRound(wss, gameId), ROUND_DURATION * 1000);
 };
 
 const endRound = (wss: Server, gameId: string) => {
@@ -170,6 +173,11 @@ const endRound = (wss: Server, gameId: string) => {
   if (!context || context.gameState !== GameState.GAME_STARTED) return;
 
   console.log(`ENDING ROUND ${context.round}`, gameId);
+
+  if (context.round >= GAME_MAX_ROUNDS) {
+    endGame(wss, gameId);
+    return;
+  }
 
   context.roundState = RoundState.ROUND_ENDED;
   context.users = context.users.map((user) => ({
@@ -189,12 +197,8 @@ const endRound = (wss: Server, gameId: string) => {
   });
 
   setTimeout(() => {
-    if (context.round < GAME_MAX_ROUNDS) {
-      startRound(wss, gameId);
-    } else {
-      endGame(wss, gameId);
-    }
-  }, 30000);
+    startRound(wss, gameId);
+  }, ROUND_INBETWEEN_DELAY * 1000);
 };
 
 const endGame = (wss: Server, gameId: string) => {
@@ -204,6 +208,7 @@ const endGame = (wss: Server, gameId: string) => {
   console.log(`ENDING GAME`, gameId);
 
   context.gameState = GameState.GAME_ENDED;
+  context.roundState = RoundState.WAITING;
 
   wss.clients.forEach((client) => {
     if (
@@ -214,7 +219,7 @@ const endGame = (wss: Server, gameId: string) => {
     }
   });
 
-  setTimeout(() => startGame(wss, gameId), 60000);
+  setTimeout(() => startGame(wss, gameId), GAME_INBETWEEN_DELAY * 1000);
 };
 
 export const onMessage = (wss: Server, ws: GameWebSocket, data: RawData) => {
@@ -292,6 +297,8 @@ export const onMessage = (wss: Server, ws: GameWebSocket, data: RawData) => {
           client.send(sendUpdate(GameUpdateType.CONTEXT, game));
         }
       });
+
+      break;
     }
     case 'GUESS': {
       const payload = message.payload as unknown as {
@@ -320,7 +327,7 @@ export const onMessage = (wss: Server, ws: GameWebSocket, data: RawData) => {
       );
       if (!user) return;
       user.hasGuessed = true;
-      user.score += 100 * (3 - Math.max(0, 3 - correctGuesses));
+      user.score += 100 * Math.max(0, 3 - correctGuesses);
 
       wss.clients.forEach((client) => {
         if (
@@ -330,6 +337,8 @@ export const onMessage = (wss: Server, ws: GameWebSocket, data: RawData) => {
           client.send(sendUpdate(GameUpdateType.CONTEXT, game));
         }
       });
+
+      break;
     }
   }
 };
