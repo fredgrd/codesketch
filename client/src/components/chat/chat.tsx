@@ -26,6 +26,12 @@ const Chat: React.FC = () => {
   const handleInput = () => {
     if (!input.length || !user || !gameContext) return;
 
+    if (
+      gameContext.selectedUser === user.id &&
+      gameContext.roundState === RoundState.ROUND_STARTED
+    )
+      return;
+
     const userFromContext = gameContext?.users.find(
       (e) => e.user.id === user?.id
     );

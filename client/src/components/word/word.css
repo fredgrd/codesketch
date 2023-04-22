@@ -45,3 +45,8 @@
   margin-top: 30px;
   border-bottom: 3px solid black;
 }
+
+.word__preview__full {
+  font-size: 24px;
+  letter-spacing: 2px;
+}

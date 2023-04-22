@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { WebSocketContext } from '../../web-socket/web-socket-context';
-import { WebSocketStatus } from '../../web-socket/use-web-socket';
 
 import './canvas.css';
+import CanvasTools from './canvas-tools';
 
 interface Point {
   x: number;
@@ -14,6 +14,8 @@ const DrawerCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef<boolean>(false);
   const lastPoint = useRef<Point>();
+  const color = useRef<string>('black');
+  const width = useRef<number>(5);
 
   useEffect(() => {
     window.addEventListener('mousemove', mouseHandler);
@@ -86,15 +88,16 @@ const DrawerCanvas: React.FC = () => {
 
     const start = lastPoint.current ?? end;
 
-    ctx.lineWidth = 5;
+    ctx.lineWidth = width.current;
     ctx.beginPath();
-    ctx.strokeStyle = 'black';
+    ctx.strokeStyle = color.current;
     ctx.moveTo(start.x, start.y);
     ctx.lineTo(end.x, end.y);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.arc(start.x, start.y, 2.5, 0, 2 * Math.PI);
+    ctx.fillStyle = color.current;
+    ctx.arc(start.x, start.y, width.current / 2, 0, 2 * Math.PI);
     ctx.fill();
 
     lastPoint.current = end;
@@ -110,6 +113,14 @@ const DrawerCanvas: React.FC = () => {
         onMouseDown={mouseDownHandler}
         onMouseUp={mouseUpHandler}
       ></canvas>
+      <CanvasTools
+        setColor={(val: string) => {
+          color.current = val;
+        }}
+        setWidth={(val: number) => {
+          width.current = val;
+        }}
+      />
     </div>
   );
 };

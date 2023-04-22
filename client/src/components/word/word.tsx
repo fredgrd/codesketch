@@ -2,9 +2,11 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import './word.css';
 import Window from '../window/window';
 import { GameContext } from '../../game-context/game-context-provider';
-import { RoundState } from '../../game-context/game-context';
+import { GameState, RoundState } from '../../game-context/game-context';
+import { UserContext } from '../../user/user-context';
 
 const Word: React.FC = () => {
+  const user = useContext(UserContext);
   const context = useContext(GameContext);
   const [roundStarted, setRoundStarted] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(60);
@@ -22,7 +24,8 @@ const Word: React.FC = () => {
     if (context?.roundState === RoundState.ROUND_STARTED) {
       startTimer();
     } else if (
-      context?.roundState === RoundState.ROUND_ENDED &&
+      (context?.roundState === RoundState.ROUND_ENDED ||
+        context?.gameState === GameState.GAME_ENDED) &&
       interval.current
     ) {
       clearInterval(interval.current);
@@ -44,12 +47,6 @@ const Word: React.FC = () => {
     interval.current = int;
   };
 
-  console.log(
-    'WORD',
-    context?.word.split('').length,
-    390 / (context?.word.split('').length || 1)
-  );
-
   const computeWidth = (): number | undefined => {
     const wordChars = context?.word.split('').length;
 
@@ -58,6 +55,26 @@ const Word: React.FC = () => {
     const width = 360 - 8 * (wordChars - 1);
 
     return width / wordChars;
+  };
+
+  const renderWord = () => {
+    if (context?.selectedUser === user?.id) {
+      return (
+        <div className="word__preview__full">{context?.word.toUpperCase()}</div>
+      );
+    } else {
+      return context?.word
+        .split('')
+        .map((char, index) => (
+          <div
+            className={
+              char !== ' ' ? 'word__preview__char' : 'word__preview__space'
+            }
+            style={{ width: `${computeWidth() || 0}px` }}
+            key={index}
+          />
+        ));
+    }
   };
 
   return (
@@ -72,15 +89,7 @@ const Word: React.FC = () => {
             {countdown}s
           </div>
           <div className="word__preview" ref={previewRef}>
-            {context?.word.split('').map((char, index) => (
-              <div
-                className={
-                  char !== ' ' ? 'word__preview__char' : 'word__preview__space'
-                }
-                style={{ width: `${computeWidth() || 0}px` }}
-                key={index}
-              />
-            ))}
+            {renderWord()}
           </div>
         </div>
       </Window>
