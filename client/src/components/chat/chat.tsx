@@ -7,12 +7,8 @@ import { WebSocketContext } from '../../web-socket/web-socket-context';
 import { GameContext } from '../../game-context/game-context-provider';
 import { UserContext } from '../../user/user-context';
 import {
-  ChatMessage,
-  ChatMessageType,
-  GameMessage,
   GameMessageGuessPayload,
   GameMessageTextPayload,
-  GameState,
   RoundState,
 } from '../../game-context/game-context';
 
@@ -62,7 +58,7 @@ const Chat: React.FC = () => {
           timestamp: Date.now().toString(),
         };
 
-        console.log("GUESSING")
+        console.log('GUESSING');
 
         webSocket?.ws?.send(
           JSON.stringify({

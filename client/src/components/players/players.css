@@ -1,0 +1,35 @@
+.players__positioner {
+  height: 400px;
+  width: 250px;
+  margin-right: 15px;
+}
+
+.players {
+  padding: 0px 10px;
+}
+
+.players__player {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+
+  font-family: IBM Plex Mono;
+  font-weight: 600;
+}
+
+.players_player_avatar {
+  height: 30px;
+  width: 30px;
+
+  border-radius: 15px;
+}
+
+.players__player__name {
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+.players__player__score {
+  margin-left: auto;
+  font-size: 14px;
+}

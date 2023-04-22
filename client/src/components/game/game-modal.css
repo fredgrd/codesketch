@@ -1,0 +1,99 @@
+.game__state-modal {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game__state-modal__positioner {
+  height: 400px;
+  width: 400px;
+}
+
+.game__state-modal__modal {
+  height: 100%;
+  width: 100%;
+  padding: 20px 20px;
+
+  background-color: var(--color-grey);
+}
+
+.game__state-modal__info-container {
+  height: calc(100% - 50px);
+  width: 100%;
+}
+
+.game__state-modal__info {
+  font-family: IBM Plex Mono;
+  font-size: 12px;
+}
+
+.game__state-modal__info--light {
+  font-family: IBM Plex Mono;
+  font-size: 12px;
+}
+
+.game__state-modal__info--strong {
+  font-family: IBM Plex Mono;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.game__state-modal__info--error {
+  display: inline-block;
+  color: red;
+}
+
+.game__state-modal__info--margin-top {
+  margin-top: 20px;
+}
+
+.game__state-modal__buttons-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game__state-modal__buttons__button {
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+
+  border: 3px solid;
+  border-color: white var(--color-border-dark) var(--color-border-dark) white;
+  background-color: var(--color-grey);
+
+  font-family: IBM Plex Mono;
+  font-weight: 600;
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.game__state-modal__buttons__button:hover {
+  background-color: #d6d6d6;
+}
+
+.game__state-modal__scoreboard {
+  display: flex;
+  flex-direction: column;
+
+  font-family: IBM Plex Mono;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.game__state-modal__score {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.game__state-modal__score__position {
+  width: 30px;
+}
+
+.game__state-modal__score__name {
+  margin-right: auto;
+}

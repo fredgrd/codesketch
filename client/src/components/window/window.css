@@ -1,7 +1,7 @@
 .window {
   height: 100%;
   width: 100%;
-  padding: 0px 10px;
+  padding: 0px 10px 10px 10px;
 
   border: 2.5px solid black;
   border-radius: 2px;
@@ -9,4 +9,12 @@
 
   -webkit-box-shadow: 6px 6px 0px 0px #000000;
   box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.window__children-positioner {
+  height: calc(100% - 40px);
+
+  border: 2px solid;
+  border-color: var(--color-border-dark) var(--color-border-light)
+    var(--color-border-light) var(--color-border-dark);
 }

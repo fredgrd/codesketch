@@ -7,11 +7,12 @@ const Window: React.FC<{
   children: React.ReactNode;
   className?: string;
   title: string;
-}> = ({ children, className, title }) => {
+  showButtons?: boolean;
+}> = ({ children, className, title, showButtons = true }) => {
   return (
     <div className={`window ${className}`}>
-      <WindowHeader title={title} />
-      {children}
+      <WindowHeader title={title} showButtons={showButtons} />
+      <div className="window__children-positioner">{children}</div>
     </div>
   );
 };
