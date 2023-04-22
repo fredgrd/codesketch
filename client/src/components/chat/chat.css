@@ -1,13 +1,13 @@
 .chat {
   position: absolute;
-  top: 20px;
+  top: 100px;
   right: 10px;
-  height: 700px;
+  height: 500px;
   width: 320px;
 }
 
 .chat__content {
-  height: 575px;
+  height: calc(100% - 60px - 10px);
   width: 100%;
 
   overflow-y: scroll;

@@ -104,8 +104,8 @@ const DrawerCanvas: React.FC = () => {
     <div className="canvas">
       <canvas
         className="canvas__drawing-canvas"
-        height={700}
-        width={700}
+        height={600}
+        width={600}
         ref={canvasRef}
         onMouseDown={mouseDownHandler}
         onMouseUp={mouseUpHandler}

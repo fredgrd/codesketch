@@ -25,6 +25,7 @@ const Players: React.FC<{ context: GameContext | undefined }> = ({
                     className="players_player_avatar"
                     src={`https://api.dicebear.com/6.x/pixel-art/svg?seed=${user.user.name}&backgroundColor=${COLOR_ARRAY[index]}&scale=90`}
                   />
+
                   <span className="players__player__name">
                     {user.user.name}
                   </span>

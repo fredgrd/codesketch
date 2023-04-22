@@ -9,4 +9,11 @@
 .game__components {
   position: relative;
   display: flex;
+  margin-top: 60px;
+}
+
+.game__canvas__positioner {
+  height: 660px;
+  width: 630px;
+  margin-right: 300px;
 }

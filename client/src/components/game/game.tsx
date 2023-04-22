@@ -19,6 +19,8 @@ import GameWaitingModal from './game-waiting-modal';
 import GameRecapModal from './game-recap-modal';
 import GameEndingModal from './game-ending-modal';
 import Players from '../players/players';
+import Window from '../window/window';
+import Word from '../word/word';
 
 const Game: React.FC = () => {
   const user = useContext(UserContext);
@@ -72,13 +74,19 @@ const Game: React.FC = () => {
           <div className="game__components">
             <Players context={context} />
 
-            {context?.selectedUser === user?.id ? (
-              <DrawerCanvas />
-            ) : (
-              <SpectatorCanvas />
-            )}
+            <div className="game__canvas__positioner">
+              <Window title="Masterpiece.png">
+                {context?.selectedUser === user?.id ? (
+                  <DrawerCanvas />
+                ) : (
+                  <SpectatorCanvas />
+                )}
+              </Window>
+            </div>
 
             <Chat />
+
+            <Word />
           </div>
         </div>
 
