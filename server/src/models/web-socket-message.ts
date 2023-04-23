@@ -24,6 +24,8 @@ export interface WSDrawPayload {
     x: number;
     y: number;
   };
+  color: string;
+  width: number;
 }
 
 export interface WSTextPayload {
