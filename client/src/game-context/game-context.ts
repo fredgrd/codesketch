@@ -67,6 +67,8 @@ export interface GameMessageDrawPayload {
     x: number;
     y: number;
   };
+  color: string;
+  width: number;
 }
 
 export interface GameMessageTextPayload {

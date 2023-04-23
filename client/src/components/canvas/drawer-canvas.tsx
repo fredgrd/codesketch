@@ -54,6 +54,8 @@ const DrawerCanvas: React.FC = () => {
                     }
                   : point,
                 end: point,
+                color: color.current,
+                width: width.current,
               },
             })
           );

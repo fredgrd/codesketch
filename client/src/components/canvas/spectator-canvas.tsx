@@ -37,7 +37,7 @@ const SpectatorCanvas: React.FC = () => {
         }
         case GameMessageAction.DRAW: {
           const payload = data.message.payload as GameMessageDrawPayload;
-          draw(payload.start, payload.end, 'black', 5);
+          draw(payload.start, payload.end, payload.color, payload.width);
           moveCursor(payload.end);
           break;
         }
@@ -83,7 +83,8 @@ const SpectatorCanvas: React.FC = () => {
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.arc(startX, startY, 2.5, 0, 2 * Math.PI);
+    ctx.fillStyle = lineColor
+    ctx.arc(startX, startY, lineWidth / 2, 0, 2 * Math.PI);
     ctx.fill();
   };
 
