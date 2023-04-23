@@ -41,12 +41,18 @@
   margin-left: 10px;
 }
 
-.word__preview__char {
-  margin-top: 30px;
-  border-bottom: 3px solid black;
-}
-
 .word__preview__full {
   font-size: 24px;
   letter-spacing: 2px;
+}
+
+.word__preview__char {
+  height: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-bottom: 3px solid black;
+
+  font-size: 24px;
 }

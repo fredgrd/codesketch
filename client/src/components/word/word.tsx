@@ -12,6 +12,9 @@ const Word: React.FC = () => {
   const [countdown, setCountdown] = useState<number>(60);
   const interval = useRef<NodeJS.Timer | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const [chars, setChars] = useState<{ char: string; visible: boolean }[]>([]);
+  const charsUncovered = useRef<number>(0);
+  const uncoverTimeInterval = useRef<number>(0);
 
   useEffect(() => {
     return () => {
@@ -22,6 +25,7 @@ const Word: React.FC = () => {
 
   useEffect(() => {
     if (context?.roundState === RoundState.ROUND_STARTED) {
+      constructChars();
       startTimer();
     } else if (
       (context?.roundState === RoundState.ROUND_ENDED ||
@@ -31,8 +35,40 @@ const Word: React.FC = () => {
       clearInterval(interval.current);
       setCountdown(60);
       setRoundStarted(false);
+      charsUncovered.current = 0;
+      uncoverTimeInterval.current = 0;
     }
   }, [context]);
+
+  useEffect(() => {
+    const interval = uncoverTimeInterval.current;
+    if (
+      countdown < 60 &&
+      countdown % interval === 0 &&
+      charsUncovered.current < Math.floor((context?.word.length || 0) * 0.8)
+    ) {
+      // Uncover char
+      const indexes: number[] = [];
+      for (let i = 0; i < chars.length; i++) {
+        if (!chars[i].visible) {
+          indexes.push(i);
+        }
+      }
+
+      const indexOfIndexes = Math.floor(Math.random() * (indexes.length - 1));
+      const charIndex = indexes[indexOfIndexes];
+      const updatedChars = chars.map((el, idx) => {
+        if (idx === charIndex) {
+          return { char: el.char, visible: true };
+        } else {
+          return el;
+        }
+      });
+
+      charsUncovered.current += 1;
+      setChars(updatedChars);
+    }
+  }, [countdown]);
 
   const startTimer = () => {
     if (roundStarted) return;
@@ -48,7 +84,7 @@ const Word: React.FC = () => {
   };
 
   const computeWidth = (): number | undefined => {
-    const wordChars = context?.word.split('').length;
+    const wordChars = 'LINKED LIST'.split('').length; //context?.word.split('').length;
 
     if (!wordChars) return;
 
@@ -57,23 +93,41 @@ const Word: React.FC = () => {
     return width / wordChars;
   };
 
+  const constructChars = () => {
+    if (!context?.word || roundStarted) return;
+
+    const arr: { char: string; visible: boolean }[] = context.word
+      .toUpperCase()
+      .split('')
+      .map((char) => ({ char, visible: char === ' ' }));
+
+    const numberOfChars = arr.reduce((prev, curr) => {
+      if (!curr.visible) {
+        return prev + 1;
+      } else {
+        return prev;
+      }
+    }, 0);
+
+    uncoverTimeInterval.current = Math.floor(50 / numberOfChars);
+    setChars(arr);
+  };
+
   const renderWord = () => {
     if (context?.selectedUser === user?.id) {
       return (
         <div className="word__preview__full">{context?.word.toUpperCase()}</div>
       );
     } else {
-      return context?.word
-        .split('')
-        .map((char, index) => (
-          <div
-            className={
-              char !== ' ' ? 'word__preview__char' : 'word__preview__space'
-            }
-            style={{ width: `${computeWidth() || 0}px` }}
-            key={index}
-          />
-        ));
+      return chars.map((char, index) => (
+        <div
+          className="word__preview__char"
+          key={index}
+          style={{ width: computeWidth() }}
+        >
+          {char.visible && char.char}
+        </div>
+      ));
     }
   };
 
