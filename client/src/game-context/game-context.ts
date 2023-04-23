@@ -43,6 +43,7 @@ export interface GameMessage {
 export enum GameMessageAction {
   MOVE = 'MOVE',
   DRAW = 'DRAW',
+  REVERT = 'REVERT',
   TEXT = 'TEXT',
   GUESS = 'GUESS',
 }

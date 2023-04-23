@@ -9,11 +9,20 @@ interface Point {
   y: number;
 }
 
+export enum Tool {
+  PENCIL,
+  ERASER,
+  BUCKET,
+}
+
 const DrawerCanvas: React.FC = () => {
   const webSocket = useContext(WebSocketContext);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const isDrawing = useRef<boolean>(false);
+  const eraserRef = useRef<HTMLDivElement>(null);
+  const isClicking = useRef<boolean>(false);
   const lastPoint = useRef<Point>();
+  const history = useRef<ImageData[]>([]);
+  const tool = useRef<Tool>(Tool.PENCIL);
   const color = useRef<string>('black');
   const width = useRef<number>(5);
 
@@ -22,12 +31,6 @@ const DrawerCanvas: React.FC = () => {
 
     return () => window.removeEventListener('mousemove', mouseHandler);
   }, []);
-
-  useEffect(() => {
-    if (webSocket?.ws) {
-      // context.ws.addEventListener('message', () => {});
-    }
-  }, [webSocket]);
 
   const mouseHandler = (event: MouseEvent) => {
     const { clientX, clientY } = event;
@@ -42,24 +45,45 @@ const DrawerCanvas: React.FC = () => {
       };
 
       if (point.x >= 0 && point.x <= 1 && point.y >= 0 && point.y <= 1) {
-        if (isDrawing.current) {
-          ws.send(
-            JSON.stringify({
-              action: 'DRAW',
-              payload: {
-                start: lastPoint.current
-                  ? {
-                      x: lastPoint.current.x / canvasRect.width,
-                      y: lastPoint.current.y / canvasRect.height,
-                    }
-                  : point,
-                end: point,
-                color: color.current,
-                width: width.current,
-              },
-            })
-          );
-          draw({ x: clientX - canvasRect.left, y: clientY - canvasRect.y });
+        switch (tool.current) {
+          case Tool.ERASER: {
+            if (eraserRef.current) {
+              eraserRef.current.style.opacity = '1';
+              eraserRef.current.style.top = `${
+                point.y * canvasRect.height - 35
+              }px`;
+              eraserRef.current.style.left = `${
+                point.x * canvasRect.width - 35
+              }px`;
+              break;
+            }
+          }
+        }
+
+        if (isClicking.current) {
+          if (tool.current === Tool.PENCIL || tool.current === Tool.ERASER) {
+            ws.send(
+              JSON.stringify({
+                action: 'DRAW',
+                payload: {
+                  start: lastPoint.current
+                    ? {
+                        x: lastPoint.current.x / canvasRect.width,
+                        y: lastPoint.current.y / canvasRect.height,
+                      }
+                    : point,
+                  end: point,
+                  color: tool.current === Tool.PENCIL ? color.current : 'white',
+                  width: tool.current === Tool.PENCIL ? width.current : 70,
+                },
+              })
+            );
+            draw(
+              { x: clientX - canvasRect.left, y: clientY - canvasRect.y },
+              tool.current === Tool.PENCIL ? color.current : 'white',
+              tool.current === Tool.PENCIL ? width.current : 70
+            );
+          }
         } else {
           ws.send(
             JSON.stringify({
@@ -73,33 +97,40 @@ const DrawerCanvas: React.FC = () => {
   };
 
   const mouseDownHandler = () => {
-    isDrawing.current = true;
-    // Should update last point
+    isClicking.current = true;
   };
 
   const mouseUpHandler = () => {
-    isDrawing.current = false;
+    isClicking.current = false;
     lastPoint.current = undefined;
+
+    const ctx = canvasRef.current?.getContext('2d');
+    const data = ctx?.getImageData(0, 0, 600, 600);
+    if (data) {
+      history.current.push(data);
+    }
+
+    console.log(history.current.length);
   };
 
-  const draw = (end: Point) => {
-    if (!isDrawing.current) return;
+  const draw = (end: Point, color: string, width: number) => {
+    if (!isClicking.current) return;
 
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
 
     const start = lastPoint.current ?? end;
 
-    ctx.lineWidth = width.current;
+    ctx.lineWidth = width;
     ctx.beginPath();
-    ctx.strokeStyle = color.current;
+    ctx.strokeStyle = color;
     ctx.moveTo(start.x, start.y);
     ctx.lineTo(end.x, end.y);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.fillStyle = color.current;
-    ctx.arc(start.x, start.y, width.current / 2, 0, 2 * Math.PI);
+    ctx.fillStyle = color;
+    ctx.arc(start.x, start.y, width / 2, 0, 2 * Math.PI);
     ctx.fill();
 
     lastPoint.current = end;
@@ -122,6 +153,15 @@ const DrawerCanvas: React.FC = () => {
         setWidth={(val: number) => {
           width.current = val;
         }}
+        setTool={(val: Tool) => {
+          tool.current = val;
+        }}
+      />
+      <div
+        className="canvas__eraser"
+        ref={eraserRef}
+        onMouseDown={mouseDownHandler}
+        onMouseUp={mouseUpHandler}
       />
     </div>
   );

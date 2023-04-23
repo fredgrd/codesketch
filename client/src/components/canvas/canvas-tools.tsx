@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Tool } from './drawer-canvas';
 import './canvas-tools.css';
 
 import Revert from '../../assets/revert.png';
@@ -17,7 +18,8 @@ const COLORS: string[] = [
 const CanvasTools: React.FC<{
   setColor: (color: string) => void;
   setWidth: (width: number) => void;
-}> = ({ setColor, setWidth }) => {
+  setTool: (tool: Tool) => void;
+}> = ({ setColor, setWidth, setTool }) => {
   const [colorSelected, setColorSelected] = useState<number>(0);
 
   const handleClick = (idx: number) => {
@@ -41,14 +43,26 @@ const CanvasTools: React.FC<{
         ))}
       </div>
       <div className="canvas-tools__widths">
-        <div className="canvas-tools__width--small" onClick={() => setWidth(2)}/>
-        <div className="canvas-tools__width--medium" onClick={() => setWidth(5)}/>
-        <div className="canvas-tools__width--big" onClick={() => setWidth(9)}/>
+        <div
+          className="canvas-tools__width--small"
+          onClick={() => setWidth(2)}
+        />
+        <div
+          className="canvas-tools__width--medium"
+          onClick={() => setWidth(5)}
+        />
+        <div className="canvas-tools__width--big" onClick={() => setWidth(9)} />
       </div>
 
       <div className="canvas-tools__revert">
         <button className="canvas-tools__revert__button">
           <img className="canvas-tools__revert__button__icon" src={Revert} />
+        </button>
+        <button
+          className="canvas-tools__revert__button"
+          onClick={() => setTool(Tool.ERASER)}
+        >
+          ERASE
         </button>
       </div>
     </div>

@@ -123,7 +123,10 @@ const Word: React.FC = () => {
         <div
           className="word__preview__char"
           key={index}
-          style={{ width: computeWidth() }}
+          style={{
+            width: computeWidth(),
+            borderBottom: char.char === ' ' ? 'none' : '3px solid black',
+          }}
         >
           {char.visible && char.char}
         </div>

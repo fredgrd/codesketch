@@ -13,7 +13,7 @@ const SpectatorCanvas: React.FC = () => {
   const webSocket = useContext(WebSocketContext);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
-  const history = useRef(null);
+  const history = useRef<ImageData[]>([]);
 
   useEffect(() => {
     if (webSocket?.ws) {
@@ -26,7 +26,6 @@ const SpectatorCanvas: React.FC = () => {
 
   const handleGameUpdate = (ev: MessageEvent) => {
     const data = JSON.parse(ev.data) as GameUpdate;
-    console.log('SPECTATOR CANVAS', data);
 
     if (data && data.type === GameUpdateType.MESSAGE) {
       switch (data.message.action) {
@@ -39,6 +38,11 @@ const SpectatorCanvas: React.FC = () => {
           const payload = data.message.payload as GameMessageDrawPayload;
           draw(payload.start, payload.end, payload.color, payload.width);
           moveCursor(payload.end);
+          break;
+        }
+        case GameMessageAction.REVERT: {
+          console.log('REVERT');
+          revert();
           break;
         }
       }
@@ -73,8 +77,6 @@ const SpectatorCanvas: React.FC = () => {
     const endX = Math.floor(end.x * canvasRect.width);
     const endY = Math.floor(end.y * canvasRect.height);
 
-    console.log(startX, startY, endX, endY);
-
     ctx.lineWidth = lineWidth;
     ctx.beginPath();
     ctx.strokeStyle = lineColor;
@@ -83,9 +85,28 @@ const SpectatorCanvas: React.FC = () => {
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.fillStyle = lineColor
+    ctx.fillStyle = lineColor;
     ctx.arc(startX, startY, lineWidth / 2, 0, 2 * Math.PI);
     ctx.fill();
+
+    const data = ctx.getImageData(0, 0, 600, 600);
+    history.current.push(data);
+  };
+
+  const revert = () => {
+    const ctx = canvasRef.current?.getContext('2d');
+    if (!ctx) return;
+
+    console.log(history.current.length)
+
+    if (history.current.length === 1) {
+      history.current.pop();
+      ctx.clearRect(0, 0, 600, 600);
+    } else if (history.current.length > 1) {
+      history.current.pop();
+      const lastChange = history.current[history.current.length - 1];
+      ctx.putImageData(lastChange, 0, 0);
+    }
   };
 
   return (
