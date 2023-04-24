@@ -65,15 +65,17 @@
   background-color: black;
 }
 
-.canvas-tools__revert {
+.canvas-tools__buttons {
   width: 45px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 10px;
   margin-top: 20px;
 }
 
-.canvas-tools__revert__button {
+.canvas-tools__buttons__button {
   padding: 8px 8px;
   display: flex;
   align-items: center;
@@ -89,11 +91,11 @@
   cursor: pointer;
 }
 
-.canvas-tools__revert__button:hover {
+.canvas-tools__buttons__button:hover {
   background-color: #d6d6d6;
 }
 
-.canvas-tools__revert__button__icon {
-  height: 10px;
-  width: 10px;
+.canvas-tools__buttons__button__icon {
+  height: 14px;
+  width: 14px;
 }

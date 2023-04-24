@@ -3,6 +3,8 @@ import { Tool } from './drawer-canvas';
 import './canvas-tools.css';
 
 import Revert from '../../assets/revert.png';
+import Bucket from '../../assets/bucket.png';
+import Eraser from '../../assets/eraser.png';
 
 const COLORS: string[] = [
   '#000000',
@@ -54,15 +56,18 @@ const CanvasTools: React.FC<{
         <div className="canvas-tools__width--big" onClick={() => setWidth(9)} />
       </div>
 
-      <div className="canvas-tools__revert">
-        <button className="canvas-tools__revert__button">
-          <img className="canvas-tools__revert__button__icon" src={Revert} />
+      <div className="canvas-tools__buttons">
+        <button
+          className="canvas-tools__buttons__button"
+          onClick={() => setTool(Tool.BUCKET)}
+        >
+          <img className="canvas-tools__buttons__button__icon" src={Bucket} />
         </button>
         <button
-          className="canvas-tools__revert__button"
+          className="canvas-tools__buttons__button"
           onClick={() => setTool(Tool.ERASER)}
         >
-          ERASE
+          <img className="canvas-tools__buttons__button__icon" src={Eraser} />
         </button>
       </div>
     </div>
