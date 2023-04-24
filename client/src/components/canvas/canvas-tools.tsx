@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tool } from './drawer-canvas';
+import { Tool } from '../../drawing/tool';
 import './canvas-tools.css';
 
 import Revert from '../../assets/revert.png';

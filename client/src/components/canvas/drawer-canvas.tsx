@@ -1,62 +1,25 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { WebSocketContext } from '../../web-socket/web-socket-context';
-
+import { Tool } from '../../drawing/tool';
+import { Point } from '../../drawing/point';
+import { Color } from '../../drawing/color';
 import './canvas.css';
 
 import Bucket from '../../assets/bucket.png';
 
 import CanvasTools from './canvas-tools';
 
-interface Point {
-  x: number;
-  y: number;
-}
+const CANVAS_WIDTH = 600;
 
-interface Color {
-  red: number;
-  green: number;
-  blue: number;
-  alpha: number;
-}
-
-export enum Tool {
-  PENCIL,
-  ERASER,
-  BUCKET,
-}
-
-const getIndexes = (
-  { x, y }: Point,
-  width: number
-): { red: number; green: number; blue: number; alpha: number } => {
-  const red = y * (width * 4) + x * 4;
-  return { red: red, green: red + 1, blue: red + 2, alpha: red + 3 };
-};
-
-const getColor = (
-  { x, y }: Point,
-  width: number,
-  data: Uint8ClampedArray
-): Color => {
-  const red = y * (width * 4) + x * 4;
-  const indexes = { red: red, green: red + 1, blue: red + 2, alpha: red + 3 };
-  const color: Color = {
-    red: data[indexes.red],
-    green: data[indexes.green],
-    blue: data[indexes.blue],
-    alpha: data[indexes.alpha],
-  };
-
-  return color;
-};
-
-const sameColor = (color1: Color, color2: Color): boolean => {
-  return (
-    color1.red === color2.red &&
-    color1.green === color2.green &&
-    color1.blue === color2.blue &&
-    color1.alpha === color2.alpha
-  );
+const HEX_TO_RGB: { [id: string]: number[] } = {
+  '#000000': [0, 0, 0, 255],
+  '#9DD241': [157, 210, 65, 255],
+  '#FF6C20': [255, 108, 32, 255],
+  '#FF3737': [255, 55, 55, 255],
+  '#FFB4DE': [255, 180, 222, 255],
+  '#9123F3': [145, 35, 243, 255],
+  '#2469FF': [36, 105, 255, 255],
+  '#A7F4FF': [167, 244, 255, 255],
 };
 
 const DrawerCanvas: React.FC = () => {
@@ -66,9 +29,8 @@ const DrawerCanvas: React.FC = () => {
   const bucketRef = useRef<HTMLDivElement>(null);
   const isClicking = useRef<boolean>(false);
   const lastPoint = useRef<Point>();
-  const history = useRef<ImageData[]>([]);
   const tool = useRef<Tool>(Tool.PENCIL);
-  const color = useRef<string>('black');
+  const color = useRef<string>('#000000');
   const width = useRef<number>(5);
 
   useEffect(() => {
@@ -84,28 +46,26 @@ const DrawerCanvas: React.FC = () => {
     // Point w/ respect to canvas
     const canvasRect = canvasRef.current?.getBoundingClientRect();
     if (canvasRect && ws) {
-      const point: Point = {
-        x: (clientX - canvasRect.left) / canvasRect.width,
-        y: (clientY - canvasRect.y) / canvasRect.height,
-      };
+      const point: Point = new Point(
+        clientX - canvasRect.left,
+        clientY - canvasRect.top
+      );
 
-      if (point.x >= 0 && point.x <= 1 && point.y >= 0 && point.y <= 1) {
+      const { x, y } = point.pctCoords;
+      if (x >= 0 && x <= 1 && y >= 0 && y <= 1) {
+        // Move eraser
         switch (tool.current) {
           case Tool.ERASER: {
             if (eraserRef.current) {
-              eraserRef.current.style.top = `${
-                point.y * canvasRect.height - 35
-              }px`;
-              eraserRef.current.style.left = `${
-                point.x * canvasRect.width - 35
-              }px`;
+              eraserRef.current.style.top = `${point.y - 35}px`;
+              eraserRef.current.style.left = `${point.x - 35}px`;
             }
             break;
           }
           case Tool.BUCKET: {
             if (bucketRef.current) {
-              bucketRef.current.style.top = `${point.y * canvasRect.height}px`;
-              bucketRef.current.style.left = `${point.x * canvasRect.width}px`;
+              bucketRef.current.style.top = `${point.y - 20}px`;
+              bucketRef.current.style.left = `${point.x - 20}px`;
             }
             break;
           }
@@ -118,19 +78,17 @@ const DrawerCanvas: React.FC = () => {
                 action: 'DRAW',
                 payload: {
                   start: lastPoint.current
-                    ? {
-                        x: lastPoint.current.x / canvasRect.width,
-                        y: lastPoint.current.y / canvasRect.height,
-                      }
-                    : point,
-                  end: point,
+                    ? lastPoint.current.pctCoords
+                    : point.pctCoords,
+                  end: point.pctCoords,
                   color: tool.current === Tool.PENCIL ? color.current : 'white',
                   width: tool.current === Tool.PENCIL ? width.current : 70,
                 },
               })
             );
+
             draw(
-              { x: clientX - canvasRect.left, y: clientY - canvasRect.y },
+              point,
               tool.current === Tool.PENCIL ? color.current : 'white',
               tool.current === Tool.PENCIL ? width.current : 70
             );
@@ -149,16 +107,6 @@ const DrawerCanvas: React.FC = () => {
 
   const mouseDownHandler = () => {
     isClicking.current = true;
-
-    if (tool.current === Tool.BUCKET && bucketRef.current) {
-      console.log(bucketRef.current.style.left, bucketRef.current.style.top);
-      const point: Point = {
-        x: parseFloat(bucketRef.current.style.left),
-        y: parseFloat(bucketRef.current.style.top),
-      };
-
-      floodFill(point);
-    }
   };
 
   const mouseUpHandler = () => {
@@ -189,102 +137,85 @@ const DrawerCanvas: React.FC = () => {
     lastPoint.current = end;
   };
 
-  const fill = (
-    point: Point,
-    color: Color = { red: 0, green: 0, blue: 0, alpha: 1 }
-  ) => {
-    const ctx = canvasRef.current?.getContext('2d');
-    if (!ctx) return;
+  const onBucketClick = () => {
+    if (tool.current !== Tool.BUCKET || !bucketRef.current) return;
+    const top = parseInt(bucketRef.current.style.top);
+    const left = parseInt(bucketRef.current.style.left);
 
-    const data = ctx.getImageData(0, 0, 600, 600);
-    if (!data) return;
+    const point = new Point(left + 20, top + 20, CANVAS_WIDTH);
 
-    const x = Math.round(point.x);
-    const y = Math.round(point.y);
-    const width = 600;
-    const colorsData: Uint8ClampedArray = data.data;
-    const pixelColor: Color = getColor({ x, y }, width, colorsData);
-
-    const idx = getIndexes({ x, y }, width);
-    console.log(colorsData[idx.red]);
-
-    const visitedPoints = new Map<string, boolean>();
-    const propagateColor = (
-      curr: Point,
-      startColor: Color,
-      fillColor: Color
-    ) => {
-      if (!(curr.x > 0 && curr.x < 600 && curr.y > 0 && curr.y < 600)) return;
-
-      // Color
-      const color = getColor(curr, width, colorsData);
-      if (!sameColor(startColor, color)) return;
-
-      const indexes = getIndexes(curr, width);
-      colorsData[indexes.red] = fillColor.red;
-      colorsData[indexes.green] = fillColor.green;
-      colorsData[indexes.blue] = fillColor.blue;
-      colorsData[indexes.alpha] = fillColor.alpha;
-
-      // Other directions
-      propagateColor({ x: curr.x, y: curr.y - 1 }, startColor, fillColor);
-      propagateColor({ x: curr.x, y: curr.y + 1 }, startColor, fillColor);
-      propagateColor({ x: curr.x - 1, y: curr.y }, startColor, fillColor);
-      propagateColor({ x: curr.x + 1, y: curr.y }, startColor, fillColor);
-    };
-
-    propagateColor({ x, y }, pixelColor, color);
-    const newData = new ImageData(colorsData, width, width);
-    ctx.putImageData(newData, 0, 0);
+    floodFill(point);
   };
 
-  const floodFill = (
-    fillPoint: Point,
-    color: Color = { red: 0, green: 0, blue: 0, alpha: 0 }
-  ) => {
-    const width = 600;
-    const fillStack: Point[] = [fillPoint];
-    const visitedPoints = new Map<string, boolean>();
+  const floodFill = (point: Point) => {
+    if (!canvasRef.current) return;
 
-    const ctx = canvasRef.current?.getContext('2d');
+    const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
 
-    const data = ctx.getImageData(0, 0, 600, 600);
-    if (!data) return;
-    const colorsData: Uint8ClampedArray = data.data;
-    const startColor: Color = getColor(fillPoint, width, colorsData);
+    const imageData = ctx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_WIDTH);
+    const data = imageData.data;
 
-    while (fillStack.length) {
-      const point: Point | undefined = fillStack.pop();
-      if (!point) continue;
-      if (!(point.x > 0 && point.x < 600 && point.y > 0 && point.y < 600))
-        continue;
+    let count = 0;
 
-      // Visited the array
-      const key = `${point.x}${point.y}`;
-      if (visitedPoints.has(key)) continue;
-      visitedPoints.set(key, true);
+    const stackedPoints: { [id: string]: boolean } = {};
+    stackedPoints[point.key] = true;
+    const pointStack: Point[] = [point];
+    const targetColor = point.getColor(data);
+    const finalColor = HEX_TO_RGB[color.current];
 
-      // Color
-      const valColor = getColor(point, width, colorsData);
-      if (!sameColor(startColor, valColor)) continue;
+    while (pointStack.length) {
+      const curr = pointStack.pop()!;
+      const currColor = curr.getColor(data);
+      if (!currColor.compare(targetColor)) continue;
 
-      const indexes = getIndexes(point, width);
-      console.log('Start', colorsData[indexes.red]);
-      colorsData[indexes.red] = color.red;
-      colorsData[indexes.green] = color.green;
-      colorsData[indexes.blue] = color.blue;
-      colorsData[indexes.alpha] = color.alpha;
-      console.log('End', colorsData[indexes.red]);
+      const indexes = curr.indexes;
+      data[indexes.red] = finalColor[0];
+      data[indexes.green] = finalColor[1];
+      data[indexes.blue] = finalColor[2];
+      data[indexes.alpha] = finalColor[3];
 
-      fillStack.push({ x: point.x, y: point.y - 1 });
-      fillStack.push({ x: point.x, y: point.y + 1 });
-      fillStack.push({ x: point.x - 1, y: point.y });
-      fillStack.push({ x: point.x + 1, y: point.y });
+      if (
+        curr.x - 1 >= 0 &&
+        stackedPoints[`${curr.x - 1}**${curr.y}`] === undefined
+      ) {
+        const point = new Point(curr.x - 1, curr.y, CANVAS_WIDTH);
+        pointStack.push(point);
+        stackedPoints[point.key] = true;
+      }
+
+      if (
+        curr.x + 1 < CANVAS_WIDTH &&
+        stackedPoints[`${curr.x + 1}**${curr.y}`] === undefined
+      ) {
+        const point = new Point(curr.x + 1, curr.y, CANVAS_WIDTH);
+        pointStack.push(point);
+        stackedPoints[point.key] = true;
+      }
+
+      if (
+        curr.y - 1 >= 0 &&
+        stackedPoints[`${curr.x}**${curr.y - 1}`] === undefined
+      ) {
+        const point = new Point(curr.x, curr.y - 1, CANVAS_WIDTH);
+        pointStack.push(point);
+        stackedPoints[point.key] = true;
+      }
+
+      if (
+        curr.y + 1 < CANVAS_WIDTH &&
+        stackedPoints[`${curr.x}**${curr.y + 1}`] === undefined
+      ) {
+        const point = new Point(curr.x, curr.y + 1, CANVAS_WIDTH);
+        pointStack.push(point);
+        stackedPoints[point.key] = true;
+      }
+
+      count++;
     }
 
-    const newData = new ImageData(colorsData, width, width);
-    ctx.putImageData(newData, 0, 0);
+    console.log(count);
+    ctx.putImageData(imageData, 0, 0);
   };
 
   const setToolsOpacity = (tool: Tool) => {
@@ -327,11 +258,12 @@ const DrawerCanvas: React.FC = () => {
     <div className="canvas">
       <canvas
         className="canvas__drawing-canvas"
-        height={600}
-        width={600}
+        height={CANVAS_WIDTH}
+        width={CANVAS_WIDTH}
         ref={canvasRef}
         onMouseDown={mouseDownHandler}
         onMouseUp={mouseUpHandler}
+        onClick={onBucketClick}
       ></canvas>
       <CanvasTools
         setColor={(val: string) => {

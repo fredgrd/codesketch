@@ -40,7 +40,7 @@ const GameWaitingModal: React.FC<{
                 {showError && (
                   <div className="game__state-modal__info game__state-modal__info--margin-top">
                     <span className="game__state-modal__info--strong game__state-modal__info--error">
-                      Error: Connection couldn't be established.
+                      Error: Connection couldn&apost be established.
                     </span>
                     <span className="game__state-modal__info--strong game__state-modal__info--error">
                       Return to lobby to start a new game.
