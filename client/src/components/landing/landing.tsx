@@ -1,10 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
-import './landing.css';
+import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 import { UserContext } from '../../user/user-context';
 import { User } from '../../user/user';
-import { v4 as uuidv4 } from 'uuid';
-import { useNavigate } from 'react-router-dom';
+import './landing.css';
+
 import Window from '../window/window';
+
+import CodeSketch from '../../assets/codesketch.png';
+import Background from '../../assets/background.png';
 
 const Landing: React.FC<{ setUser: (user: User) => void }> = ({ setUser }) => {
   const user = useContext(UserContext);
@@ -33,22 +37,17 @@ const Landing: React.FC<{ setUser: (user: User) => void }> = ({ setUser }) => {
   return (
     <div className="landing">
       <div className="landing__menu">
-        <Window title="CodeSketch" showButtons={false}>
+        <Window title="Lobby" showButtons={false}>
           <div className="landing__menu__content">
             <div className="landing__menu__message">
-              <span className="landing__message__text landing__message__text--big">
-                Welcome to CodeSketch
-              </span>
-              <span className="landing__message__text landing__message__text--top-space">
-                There can be only one all-knowing dev.. Is it you?
-              </span>
+              <img className="landing__menu__logo" src={CodeSketch} />
             </div>
             <div className="landing__menu__input">
               <img
                 className="landing__user-avatar"
                 src={`https://api.dicebear.com/6.x/pixel-art/svg?seed=${
                   name.length ? name : 'codesketch'
-                }&backgroundColor=f72585&scale=90`}
+                }&backgroundColor=062623&scale=90`}
               />
               <input
                 className="landing__name-input"
