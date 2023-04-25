@@ -1,4 +1,4 @@
-![logo](CodeSketch.png)
+![logo](codesketch.png)
 
 Welcome to CodeSketch. This is a fun interactive game that tests your drawing skills and knowledge of computer science. The objective of the game is to draw a word prompt provided by the game, and have other players guess what you are drawing in a limited amount of time.
 
@@ -40,6 +40,10 @@ The front end displays the lobby and game interface. It connects to the backend 
 - GAME END
 
 The game has a default duration of six rounds, at the end of the last round the game enters into the GAME END state (the game automatically restarts after 60s).
+
+## Game Stages
+### Guessing
+![logo](guessing.gif)
 
 ## Future Improvments
 
