@@ -10,6 +10,14 @@ Welcome to CodeSketch. This is a fun interactive game that tests your drawing sk
 - Pay attention to the chat box as it might gie you clues on the other players' thinking.
 - Remember, it's all about having fun and being creative!
 
+## How To Run
+
+To start the game on your local machine follow these steps:
+
+1. Cd into the server folder and run `npm start`
+2. Cd into the client folder and run `npm start`
+3. Visit the client at `http://localhost:3000` on your browser.
+
 ## Tech Stack
 
 Backend:
@@ -33,10 +41,6 @@ The front end displays the lobby and game interface. It connects to the backend 
 
 The game has a default duration of six rounds, at the end of the last round the game enters into the GAME END state (the game automatically restarts after 60s).
 
-## How To Run
+## Future Improvments
 
-To start the game on your local machine follow these steps:
-
-1. Cd into the server folder and run npm start
-2. Cd into the client folder and run npm start
-3. Visit the client at http://localhost:3000 on your browser.
+1. The `floodFill` function that handles the mechanics behind the bucket fill command shoudl be improved to better fill in the gaps of white pixels currently left open at edges where the fill meets the a non-matching color. This behaviour has to be further investigated.
