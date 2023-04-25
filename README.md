@@ -2,6 +2,8 @@
 
 Welcome to CodeSketch. This is a fun interactive game that tests your drawing skills and knowledge of computer science. The objective of the game is to draw a word prompt provided by the game, and have other players guess what you are drawing in a limited amount of time.
 
+![preview](preview.gif)
+
 ## Tips for Playing
 
 - Keep your drawings simple and clear, focusing on key details that will help guessers identify the word.
@@ -49,4 +51,4 @@ The game has a default duration of six rounds, at the end of the last round the 
 
 ## Future Improvements
 
-1. The `floodFill` function that handles the mechanics behind the bucket fill command shoudl be improved to better fill in the gaps of white pixels currently left open at edges where the fill meets the a non-matching color. This behaviour has to be further investigated.
+1. The `floodFill` function that handles the mechanics behind the bucket fill command should be improved to better fill in the gaps of white pixels currently left open at edges where the fill meets the a non-matching color. This behaviour has to be further investigated.
