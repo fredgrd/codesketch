@@ -45,7 +45,7 @@ The game has a default duration of six rounds, at the end of the last round the 
 ### Drawing
 ![drawing](drawing.gif)
 ### Guessing
-![guessing](guessing.gif)
+![guessing](guessing_v.gif)
 
 ## Future Improvments
 
