@@ -42,8 +42,10 @@ The front end displays the lobby and game interface. It connects to the backend 
 The game has a default duration of six rounds, at the end of the last round the game enters into the GAME END state (the game automatically restarts after 60s).
 
 ## Game Stages
+## Drawing
+![drawing](guessing.gif)
 ### Guessing
-![logo](guessing.gif)
+![guessing](guessing.gif)
 
 ## Future Improvments
 
