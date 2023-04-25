@@ -1,4 +1,4 @@
-![logo](codesketch.png)
+![logo](codesketch_logo.png)
 
 Welcome to CodeSketch. This is a fun interactive game that tests your drawing skills and knowledge of computer science. The objective of the game is to draw a word prompt provided by the game, and have other players guess what you are drawing in a limited amount of time.
 
