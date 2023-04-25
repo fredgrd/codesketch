@@ -45,8 +45,8 @@ The game has a default duration of six rounds, at the end of the last round the 
 ### Drawing
 ![drawing](drawing.gif)
 ### Guessing
-![guessing](guessing_v.gif)
+![guessing](guessing.gif)
 
-## Future Improvments
+## Future Improvements
 
 1. The `floodFill` function that handles the mechanics behind the bucket fill command shoudl be improved to better fill in the gaps of white pixels currently left open at edges where the fill meets the a non-matching color. This behaviour has to be further investigated.
