@@ -43,7 +43,7 @@ export interface GameMessage {
 export enum GameMessageAction {
   MOVE = 'MOVE',
   DRAW = 'DRAW',
-  REVERT = 'REVERT',
+  FILL = 'FILL',
   TEXT = 'TEXT',
   GUESS = 'GUESS',
 }
@@ -51,6 +51,7 @@ export enum GameMessageAction {
 type GameMessagePayload =
   | GameMessageMovePayload
   | GameMessageDrawPayload
+  | GameMessageFillPayload
   | GameMessageTextPayload
   | GameMessageGuessPayload;
 
@@ -70,6 +71,14 @@ export interface GameMessageDrawPayload {
   };
   color: string;
   width: number;
+}
+
+export interface GameMessageFillPayload {
+  point: {
+    x: number;
+    y: number;
+  };
+  color: number[];
 }
 
 export interface GameMessageTextPayload {

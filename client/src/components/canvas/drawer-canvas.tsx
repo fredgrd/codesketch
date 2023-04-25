@@ -148,15 +148,14 @@ const DrawerCanvas: React.FC = () => {
   };
 
   const floodFill = (point: Point) => {
-    if (!canvasRef.current) return;
+    const ws = webSocket?.ws;
+    if (!canvasRef.current || !ws) return;
 
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
 
     const imageData = ctx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_WIDTH);
     const data = imageData.data;
-
-    let count = 0;
 
     const stackedPoints: { [id: string]: boolean } = {};
     stackedPoints[point.key] = true;
@@ -210,12 +209,23 @@ const DrawerCanvas: React.FC = () => {
         pointStack.push(point);
         stackedPoints[point.key] = true;
       }
-
-      count++;
     }
 
-    console.log(count);
     ctx.putImageData(imageData, 0, 0);
+
+    // Send
+    ws.send(
+      JSON.stringify({
+        action: 'FILL',
+        payload: {
+          point: {
+            x: point.pctCoords.x,
+            y: point.pctCoords.y,
+          },
+          color: finalColor,
+        },
+      })
+    );
   };
 
   const setToolsOpacity = (tool: Tool) => {

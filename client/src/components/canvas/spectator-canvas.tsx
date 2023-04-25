@@ -3,17 +3,18 @@ import { WebSocketContext } from '../../web-socket/web-socket-context';
 import {
   GameMessageAction,
   GameMessageDrawPayload,
+  GameMessageFillPayload,
   GameMessageMovePayload,
   GameUpdate,
   GameUpdateType,
 } from '../../game-context/game-context';
+import { Point } from '../../drawing/point';
 import './canvas.css';
 
 const SpectatorCanvas: React.FC = () => {
   const webSocket = useContext(WebSocketContext);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
-  const history = useRef<ImageData[]>([]);
 
   useEffect(() => {
     if (webSocket?.ws) {
@@ -40,9 +41,10 @@ const SpectatorCanvas: React.FC = () => {
           moveCursor(payload.end);
           break;
         }
-        case GameMessageAction.REVERT: {
-          console.log('REVERT');
-          revert();
+        case GameMessageAction.FILL: {
+          const payload = data.message.payload as GameMessageFillPayload;
+          floodFill(payload.point.x, payload.point.y, payload.color);
+          moveCursor(payload.point);
           break;
         }
       }
@@ -88,25 +90,73 @@ const SpectatorCanvas: React.FC = () => {
     ctx.fillStyle = lineColor;
     ctx.arc(startX, startY, lineWidth / 2, 0, 2 * Math.PI);
     ctx.fill();
-
-    const data = ctx.getImageData(0, 0, 600, 600);
-    history.current.push(data);
   };
 
-  const revert = () => {
-    const ctx = canvasRef.current?.getContext('2d');
+  const floodFill = (x: number, y: number, finalColor: number[]) => {
+    const point = new Point(Math.floor(x * 600), Math.floor(y * 600));
+    const ws = webSocket?.ws;
+    if (!canvasRef.current || !ws) return;
+
+    const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
 
-    console.log(history.current.length)
+    const imageData = ctx.getImageData(0, 0, 600, 600);
+    const data = imageData.data;
 
-    if (history.current.length === 1) {
-      history.current.pop();
-      ctx.clearRect(0, 0, 600, 600);
-    } else if (history.current.length > 1) {
-      history.current.pop();
-      const lastChange = history.current[history.current.length - 1];
-      ctx.putImageData(lastChange, 0, 0);
+    const stackedPoints: { [id: string]: boolean } = {};
+    stackedPoints[point.key] = true;
+    const pointStack: Point[] = [point];
+    const targetColor = point.getColor(data);
+
+    while (pointStack.length) {
+      const curr = pointStack.pop()!;
+      const currColor = curr.getColor(data);
+      if (!currColor.compare(targetColor)) continue;
+
+      const indexes = curr.indexes;
+      data[indexes.red] = finalColor[0];
+      data[indexes.green] = finalColor[1];
+      data[indexes.blue] = finalColor[2];
+      data[indexes.alpha] = finalColor[3];
+
+      if (
+        curr.x - 1 >= 0 &&
+        stackedPoints[`${curr.x - 1}**${curr.y}`] === undefined
+      ) {
+        const point = new Point(curr.x - 1, curr.y, 600);
+        pointStack.push(point);
+        stackedPoints[point.key] = true;
+      }
+
+      if (
+        curr.x + 1 < 600 &&
+        stackedPoints[`${curr.x + 1}**${curr.y}`] === undefined
+      ) {
+        const point = new Point(curr.x + 1, curr.y, 600);
+        pointStack.push(point);
+        stackedPoints[point.key] = true;
+      }
+
+      if (
+        curr.y - 1 >= 0 &&
+        stackedPoints[`${curr.x}**${curr.y - 1}`] === undefined
+      ) {
+        const point = new Point(curr.x, curr.y - 1, 600);
+        pointStack.push(point);
+        stackedPoints[point.key] = true;
+      }
+
+      if (
+        curr.y + 1 < 600 &&
+        stackedPoints[`${curr.x}**${curr.y + 1}`] === undefined
+      ) {
+        const point = new Point(curr.x, curr.y + 1, 600);
+        pointStack.push(point);
+        stackedPoints[point.key] = true;
+      }
     }
+
+    ctx.putImageData(imageData, 0, 0);
   };
 
   return (
