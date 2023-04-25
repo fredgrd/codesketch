@@ -20,7 +20,7 @@ const Chat: React.FC = () => {
   const messageEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [gameContext]);
 
   const handleInput = () => {
