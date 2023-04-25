@@ -1,9 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import useWebSocket from '../../web-socket/use-web-socket';
 import { WebSocketContext } from '../../web-socket/web-socket-context';
-import './game.css';
-import DrawerCanvas from '../canvas/drawer-canvas';
-import SpectatorCanvas from '../canvas/spectator-canvas';
 import { GameContext } from '../../game-context/game-context-provider';
 import {
   GameContext as Context,
@@ -13,8 +10,11 @@ import {
   RoundState,
 } from '../../game-context/game-context';
 import { UserContext } from '../../user/user-context';
+import './game.css';
+
+import DrawerCanvas from '../canvas/drawer-canvas';
+import SpectatorCanvas from '../canvas/spectator-canvas';
 import Chat from '../chat/chat';
-import { useNavigate } from 'react-router-dom';
 import GameWaitingModal from './game-waiting-modal';
 import GameRecapModal from './game-recap-modal';
 import GameEndingModal from './game-ending-modal';
@@ -28,8 +28,6 @@ const Game: React.FC = () => {
   const [context, setContext] = useState<Context>();
   const [wsError, setWsError] = useState<boolean>(false);
   const [showRecap, setShowRecap] = useState<boolean>(false);
-
-  // Timer to check WS Connection
 
   useEffect(() => {
     if (user) {
@@ -59,7 +57,6 @@ const Game: React.FC = () => {
 
   const handleGameUpdate = (ev: MessageEvent) => {
     const data = JSON.parse(ev.data) as GameUpdate;
-    console.log(data);
 
     if (data && data.type === GameUpdateType.CONTEXT) {
       const context = data.context as Context;
@@ -116,7 +113,7 @@ const Game: React.FC = () => {
 
         {/* [ START ENDING MODAL ] */}
 
-        {/* Modal is displayed when round has ended and the game has started */}
+        {/* Modal is displayed when the game has ended */}
         {context && context.gameState === GameState.GAME_ENDED && (
           <GameEndingModal context={context} />
         )}

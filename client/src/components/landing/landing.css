@@ -6,9 +6,92 @@
   justify-content: center;
 }
 
-.landing__input {
-  height: 400px;
+.landing__menu {
+  /* height: 300px; */
   width: 600px;
 
   background-color: white;
+}
+
+.landing__menu__content {
+  height: 100%;
+  width: 100%;
+  padding: 20px 40px;
+}
+
+.landing__menu__message {
+  width: 100%;
+}
+
+.landing__message__text {
+  display: block;
+  font-family: IBM Plex Mono;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.landing__message__text--big {
+  font-size: 20px;
+}
+
+.landing__message__text--top-space {
+  margin-top: 10px;
+}
+
+.landing__menu__input {
+  width: 100%;
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.landing__user-avatar {
+  height: 120px;
+  width: 120px;
+
+  border-radius: 50%;
+}
+
+.landing__name-input {
+  height: 40px;
+  width: 100%;
+  margin-left: 40px;
+  padding: 10px;
+
+  outline: none;
+  border: 2px solid var(--color-border-dark);
+  border-radius: 2px;
+  background-color: var(--color-grey);
+
+  font-family: IBM Plex Mono;
+  font-weight: 600;
+}
+
+.landing__menu__start {
+  width: 100%;
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing__start__button {
+  margin-right: 10px;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+
+  border: 3px solid;
+  border-color: white var(--color-border-dark) var(--color-border-dark) white;
+  background-color: var(--color-grey);
+
+  font-family: IBM Plex Mono;
+  font-weight: 600;
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.landing__start__button:hover {
+  background-color: #d6d6d6;
 }

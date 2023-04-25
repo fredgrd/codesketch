@@ -24,7 +24,7 @@ const useWebSocket = () => {
 
   const connect = (user: User) => {
     const webSocket = new WebSocket(
-      `ws://localhost:3001/?id=${user.id}&name=${user.name}`
+      `ws://192.168.1.5:3001/?id=${user.id}&name=${user.name}`
     );
 
     webSocket.addEventListener('close', updateOnClose);

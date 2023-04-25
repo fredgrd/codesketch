@@ -106,9 +106,6 @@ const Chat: React.FC = () => {
             placeholder="Input your guess.."
             value={input}
             onChange={(ev) => setInput(ev.target.value)}
-            onKeyDown={(ev) => {
-              if (ev.key === 'Enter') handleInput();
-            }}
           />
           <button className="chat__input__button" onClick={handleInput}>
             SEND

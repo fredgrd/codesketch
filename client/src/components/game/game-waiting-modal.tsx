@@ -1,10 +1,10 @@
 import React from 'react';
-import { GameContext, GameState } from '../../game-context/game-context';
+import { useNavigate } from 'react-router-dom';
+import { GameContext } from '../../game-context/game-context';
 import './game-modal.css';
 
 import Window from '../window/window';
 import FullscreenModal from '../fullscreen-modal/fullscreen-modal';
-import { useNavigate } from 'react-router-dom';
 
 const GameWaitingModal: React.FC<{
   context: GameContext | undefined;
