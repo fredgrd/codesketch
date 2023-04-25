@@ -275,6 +275,24 @@ export const onMessage = (wss: Server, ws: GameWebSocket, data: RawData) => {
 
       break;
     }
+    case 'FILL': {
+      if (game.roundState !== RoundState.ROUND_STARTED) {
+        return;
+      }
+
+      // Broadcast payload to all clients
+      wss.clients.forEach((client) => {
+        if (
+          client.readyState === WebSocket.OPEN &&
+          (client as GameWebSocket).gameId === game.id &&
+          (client as GameWebSocket).user?.id !== (ws as GameWebSocket).user?.id
+        ) {
+          client.send(sendUpdate(GameUpdateType.MESSAGE, message));
+        }
+      });
+
+      break;
+    }
     case 'TEXT': {
       const payload = message.payload as unknown as {
         content: string;
