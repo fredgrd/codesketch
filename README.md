@@ -10,8 +10,6 @@ Welcome to CodeSketch. This is a fun interactive game that tests your drawing sk
 - Pay attention to the chat box as it might gie you clues on the other players' thinking.
 - Remember, it's all about having fun and being creative!
 
-##
-
 ## Tech Stack
 Backend:
 - NodeJS
@@ -21,7 +19,6 @@ Backend:
 Frontend:
 - React
 - React Router
-
 
 The front end displays the lobby and game interface. It connects to the backend via the WebSocket protocol. Once enough users (5) have connected to the same game instance, the game is started. The game lifecycle is handled on the backend cycling through the states:
 - GAME WAITING
