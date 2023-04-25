@@ -11,16 +11,20 @@ Welcome to CodeSketch. This is a fun interactive game that tests your drawing sk
 - Remember, it's all about having fun and being creative!
 
 ## Tech Stack
+
 Backend:
+
 - NodeJS
 - WebSocket (ws)
 - Express (needed for future improvements)
 
 Frontend:
+
 - React
 - React Router
 
 The front end displays the lobby and game interface. It connects to the backend via the WebSocket protocol. Once enough users (5) have connected to the same game instance, the game is started. The game lifecycle is handled on the backend cycling through the states:
+
 - GAME WAITING
 - GAME START
 - ROUND START
@@ -28,3 +32,11 @@ The front end displays the lobby and game interface. It connects to the backend 
 - GAME END
 
 The game has a default duration of six rounds, at the end of the last round the game enters into the GAME END state (the game automatically restarts after 60s).
+
+## How To Run
+
+To start the game on your local machine follow these steps:
+
+1. Cd into the server folder and run npm start
+2. Cd into the client folder and run npm start
+3. Visit the client at http://localhost:3000 on your browser.
