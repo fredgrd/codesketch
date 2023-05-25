@@ -16,8 +16,8 @@ Welcome to CodeSketch. This is a fun interactive game that tests your drawing sk
 
 To start the game on your local machine follow these steps:
 
-1. Cd into the server folder and run `npm start`
-2. Cd into the client folder and run `npm start`
+1. `cd` into the server folder and run `npm start`
+2. `cd` into the client folder and run `npm start`
 3. Visit the client at `http://localhost:3000` on your browser.
 
 ## Tech Stack
